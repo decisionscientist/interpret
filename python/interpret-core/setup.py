@@ -133,19 +133,19 @@ def _copy_native_code_to_setup():
 
 class BuildCommand(build):
     user_options = build.user_options + [
-        ('build_lib=', True, 'build shared library flag'),
+        ('build_native=', "True", 'build shared library flag'),
     ]
 
     def initialize_options(self):
         build.initialize_options(self)
-        self.build_lib = True
+        self.build_native = "True"
 
     def finalize_options(self):
         build.finalize_options(self)
 
     def run(self):
-        print("Build lib flag:", self.build_lib)
-        if self.build_lib:
+        print("Build lib flag:", self.build_native)
+        if self.build_native == "True":
             _copy_native_code_to_setup()
 
             # Run native compilation as well as JavaScript build.
@@ -221,7 +221,7 @@ setup(
     },
     options={
         'build_section': {
-            'build_lib': ('True', 'Build the shared library'),
+            'build_native': ('True', 'Build the shared library'),
         },
     },
     packages=find_packages(),
