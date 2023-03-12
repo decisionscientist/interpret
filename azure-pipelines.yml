@@ -248,7 +248,7 @@ jobs:
       targetFolder: 'python/interpret-core/interpret/lib'
       flattenFolders: true
     displayName: 'Copy interpret-inline.js to python lib directory'
-  - script: python setup.py bdist_wheel -d ../../staging
+  - script: python setup.py bdist_wheel -d ../../staging --install-option="--build_lib=False"
     workingDirectory: 'python/interpret-core'
     displayName: 'interpret-core bld_bdist_package'
     # TODO: python setup.py bdist_wheel -d ../../staging is rebuilding the native code and the javascript, which is slowing the build

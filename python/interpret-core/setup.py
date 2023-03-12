@@ -132,35 +132,48 @@ def _copy_native_code_to_setup():
 
 
 class BuildCommand(build):
+    user_options = build.user_options + [
+        ('build_lib=', True, 'build shared library flag'),
+    ]
+
+    def initialize_options(self):
+        build.initialize_options(self)
+        self.build_lib = True
+
+    def finalize_options(self):
+        build.finalize_options(self)
+
     def run(self):
-        _copy_native_code_to_setup()
+        print("Build lib flag:", self.build_lib)
+        if self.build_lib:
+            _copy_native_code_to_setup()
 
-        # Run native compilation as well as JavaScript build.
-        import subprocess
-        import os
-        import shutil
+            # Run native compilation as well as JavaScript build.
+            import subprocess
+            import os
+            import shutil
 
-        script_path = os.path.dirname(os.path.abspath(__file__))
-        sym_path = os.path.join(script_path, "symbolic")
+            script_path = os.path.dirname(os.path.abspath(__file__))
+            sym_path = os.path.join(script_path, "symbolic")
 
-        # Native compile
-        if os.name == "nt":
-            build_script = os.path.join(sym_path, "build.bat")
-            subprocess.check_call([build_script], cwd=sym_path)
-        else:
-            build_script = os.path.join(sym_path, "build.sh")
-            subprocess.check_call(["/bin/sh", build_script], cwd=sym_path)
+            # Native compile
+            if os.name == "nt":
+                build_script = os.path.join(sym_path, "build.bat")
+                subprocess.check_call([build_script], cwd=sym_path)
+            else:
+                build_script = os.path.join(sym_path, "build.sh")
+                subprocess.check_call(["/bin/sh", build_script], cwd=sym_path)
 
-        source_dir = os.path.join(
-            sym_path, "python", "interpret-core", "interpret", "lib"
-        )
-        target_dir = os.path.join(script_path, "interpret", "lib")
-        os.makedirs(target_dir, exist_ok=True)
-        file_names = os.listdir(source_dir)
-        for file_name in file_names:
-            shutil.move(
-                os.path.join(source_dir, file_name), os.path.join(target_dir, file_name)
+            source_dir = os.path.join(
+                sym_path, "python", "interpret-core", "interpret", "lib"
             )
+            target_dir = os.path.join(script_path, "interpret", "lib")
+            os.makedirs(target_dir, exist_ok=True)
+            file_names = os.listdir(source_dir)
+            for file_name in file_names:
+                shutil.move(
+                    os.path.join(source_dir, file_name), os.path.join(target_dir, file_name)
+                )
 
         # JavaScript compile
         js_path = os.path.join(script_path, "js")
@@ -205,6 +218,11 @@ setup(
         "sdist": SDistCommand,
         "build": BuildCommand,
         "bdist_wheel": BDistWheelCommand,
+    },
+    options={
+        'build_section': {
+            'build_lib': ('True', 'Build the shared library'),
+        },
     },
     packages=find_packages(),
     package_data=package_data,
